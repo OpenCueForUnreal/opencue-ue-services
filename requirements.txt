@@ -1,0 +1,21 @@
+# OpenCue for Unreal - Python Dependencies
+
+# Web framework for Worker Pool HTTP API
+fastapi>=0.100.0
+uvicorn>=0.23.0
+
+# HTTP client for task script
+requests>=2.28.0
+
+# Environment configuration
+python-dotenv>=1.0.0
+
+# OpenCue Python SDK (for job submission)
+opencue-pycue>=1.13.0
+opencue-pyoutline>=1.13.0
+
+# Process management
+psutil>=5.9.0
+
+# Type hints
+pydantic>=2.0.0

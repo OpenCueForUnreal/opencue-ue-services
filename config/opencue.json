@@ -1,0 +1,40 @@
+{
+  "worker_pool": {
+    "host": "0.0.0.0",
+    "port": 9100,
+    "ue_root": "D:/InstallVersion_UE/UE_5.4",
+    "uproject": "D:/D_Dev/ue-mrq-automation/OpenCueForMRQ_Demo/OpenCueForMRQ_Demo.uproject",
+    "executor_class": "/Script/OpenCueForUnreal.MoviePipelineOpenCuePIEExecutor",
+    "game_mode_class": "/Script/MovieRenderPipelineCore.MoviePipelineGameMode",
+    "min_workers": 1,
+    "max_workers": 4,
+    "worker_startup_timeout": 120.0,
+    "worker_idle_timeout": 300.0,
+    "heartbeat_timeout": 30.0,
+    "task_timeout": 3600.0,
+    "data_root": "./data",
+    "log_root": "./logs"
+  },
+  "cuebot": {
+    "host": "localhost",
+    "port": 8443,
+    "show_name": "UE_RENDER"
+  },
+  "mrq_server": {
+    "base_url": "http://127.0.0.1:8080/"
+  },
+  "launcher": {
+    "cuebot_jar": "",
+    "rqd_executable": "rqd",
+    "cuebot_host": "localhost",
+    "cuebot_port": 8443,
+    "cuebot_db_host": "localhost",
+    "cuebot_db_port": 5432,
+    "cuebot_db_name": "cuebot",
+    "cuebot_db_user": "cuebot",
+    "cuebot_db_pass": "",
+    "worker_pool_port": 9100,
+    "log_dir": "./logs",
+    "pid_dir": "./pids"
+  }
+}

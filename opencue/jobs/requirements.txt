@@ -1,0 +1,4 @@
+# OpenCue Python 依赖
+# 不指定版本，使用最新版
+opencue-pycue
+opencue-pyoutline
