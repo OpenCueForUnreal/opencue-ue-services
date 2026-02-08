@@ -12,6 +12,31 @@ This repository provides two product-facing executables:
 It also includes convenience launch scripts for local OpenCue core services
 (`cuebot`, `rqd`, `cuegui`) and developer packaging tools.
 
+## Architecture and Sequence Diagrams
+
+### Sequence
+![Project Sequence](./resources/ProjectSequence.svg)
+
+### Architecture
+![Project Architecture](./resources/ProjectArchitecture.svg)
+
+## UI Screenshots
+
+### Movie Render Queue - OpenCue Panel
+![MovieRenderQueue OpenCue](./resources/MovieRenderQueue_OpenCueForUnreal.png)
+
+### Project Settings - OpenCue
+![OpenCue Settings](./resources/Plugins%20-%20OpenCue%20Settings.png)
+
+### CueGUI - Job Queue
+![CueGUI Job Queue](./resources/Job%20queue.png)
+
+### CueGUI - Job Details
+![CueGUI Job Details](./resources/Cuegui%20-%20Job%20details.png)
+
+### CueGUI - Job Finish
+![CueGUI Job Finish](./resources/Job%20finish.png)
+
 ## Components and Responsibilities
 
 | Component | Type | Responsibility | Entry |
