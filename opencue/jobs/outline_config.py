@@ -1,6 +1,6 @@
 """
 OpenCue + UE5 集成配置
-从环境变量或默认值加载配�?
+从环境变量或默认值加载配�?
 """
 import os
 from pathlib import Path
@@ -18,7 +18,7 @@ class OpenCueConfig:
     # UE5 配置
     ue_root: str = ""
     uproject: str = ""
-    executor_class: str = "/Script/OpenCueForUnrealCmdline.MoviePipelineNativeDeferredExecutor"
+    executor_class: str = "/Script/OpenCueForUnrealCmdline.MoviePipelineOpenCueCmdExecutor"
     game_mode_class: str = "/Script/MovieRenderPipelineCore.MoviePipelineGameMode"
     
     # 资源配置
@@ -28,15 +28,15 @@ class OpenCueConfig:
     
     @classmethod
     def from_env(cls) -> "OpenCueConfig":
-        """从环境变量加载配�?""
+        """从环境变量加载配�?""
         return cls(
             cuebot_host=os.getenv("CUEBOT_HOST", "localhost"),
             cuebot_port=int(os.getenv("CUEBOT_PORT", "8443")),
             show_name=os.getenv("OPENCUE_SHOW", "UE_RENDER"),
             ue_root=os.getenv("UE_ROOT", ""),
             uproject=os.getenv("UPROJECT", ""),
-            executor_class=os.getenv("EXECUTOR_CLASS", 
-                "/Script/OpenCueForUnrealCmdline.MoviePipelineNativeDeferredExecutor"),
+            executor_class=os.getenv("EXECUTOR_CLASS",
+                "/Script/OpenCueForUnrealCmdline.MoviePipelineOpenCueCmdExecutor"),
             game_mode_class=os.getenv("GAME_MODE_CLASS",
                 "/Script/MovieRenderPipelineCore.MoviePipelineGameMode"),
             default_cores=int(os.getenv("DEFAULT_CORES", "8")),
