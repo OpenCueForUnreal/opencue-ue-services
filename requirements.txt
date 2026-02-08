@@ -13,6 +13,7 @@ python-dotenv>=1.0.0
 # OpenCue Python SDK (for job submission)
 opencue-pycue>=1.13.0
 opencue-pyoutline>=1.13.0
+packaging>=23.0
 
 # Process management
 psutil>=5.9.0
