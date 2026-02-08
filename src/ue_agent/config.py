@@ -1,14 +1,42 @@
 """
-Configuration management for OpenCue UE Worker Pool
-Loads from environment variables, .env file, or JSON config
+Configuration management for OpenCue UE Agent.
+
+Loads from environment variables, .env file, or JSON config.
 """
 import os
 import json
+import sys
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Optional
 
 from dotenv import load_dotenv
+
+
+def get_agent_home() -> Path:
+    """Resolve agent runtime home directory."""
+    env_home = os.getenv("AGENT_HOME", "").strip()
+    if env_home:
+        return Path(env_home)
+
+    if getattr(sys, "frozen", False):
+        # Packaged exe runtime
+        return Path(sys.executable).resolve().parent
+
+    # Source runtime: opencue-ue-services/
+    return Path(__file__).resolve().parents[2]
+
+
+def default_worker_pool_data_root() -> str:
+    return str(get_agent_home() / "data" / "worker_pool")
+
+
+def default_worker_pool_log_root() -> str:
+    return str(get_agent_home() / "logs" / "worker_pool")
+
+
+def default_one_shot_work_root() -> str:
+    return str(get_agent_home() / "logs" / "one_shot")
 
 
 @dataclass
@@ -36,8 +64,8 @@ class WorkerPoolConfig:
     task_timeout: float = 3600.0  # 1 hour max per task
 
     # Paths
-    data_root: str = "./data"
-    log_root: str = "./logs"
+    data_root: str = field(default_factory=default_worker_pool_data_root)
+    log_root: str = field(default_factory=default_worker_pool_log_root)
 
     @classmethod
     def from_env(cls, env_file: Optional[str] = None) -> "WorkerPoolConfig":
@@ -70,8 +98,8 @@ class WorkerPoolConfig:
             worker_idle_timeout=float(os.getenv("WORKER_IDLE_TIMEOUT", "300")),
             heartbeat_timeout=float(os.getenv("HEARTBEAT_TIMEOUT", "30")),
             task_timeout=float(os.getenv("TASK_TIMEOUT", "3600")),
-            data_root=os.getenv("DATA_ROOT", "./data"),
-            log_root=os.getenv("LOG_ROOT", "./logs"),
+            data_root=os.getenv("DATA_ROOT", default_worker_pool_data_root()),
+            log_root=os.getenv("LOG_ROOT", default_worker_pool_log_root()),
         )
 
     @classmethod
@@ -88,43 +116,12 @@ class WorkerPoolConfig:
 
 
 @dataclass
-class CuebotConfig:
-    """OpenCue Cuebot configuration"""
-    host: str = "localhost"
-    port: int = 8443
-    show_name: str = "UE_RENDER"
-
-    @classmethod
-    def from_env(cls) -> "CuebotConfig":
-        return cls(
-            host=os.getenv("CUEBOT_HOST", "localhost"),
-            port=int(os.getenv("CUEBOT_PORT", "8443")),
-            show_name=os.getenv("OPENCUE_SHOW", "UE_RENDER"),
-        )
-
-
-@dataclass
-class MRQServerConfig:
-    """MRQ Server configuration for progress reporting"""
-    base_url: str = "http://127.0.0.1:8080/"
-
-    @classmethod
-    def from_env(cls) -> "MRQServerConfig":
-        url = os.getenv("MRQ_SERVER_BASE_URL", "http://127.0.0.1:8080/")
-        if not url.endswith("/"):
-            url += "/"
-        return cls(base_url=url)
-
-
-@dataclass
-class OpenCueConfig:
-    """Combined configuration for all components"""
+class AgentConfig:
+    """Combined configuration for the agent runtime."""
     worker_pool: WorkerPoolConfig = field(default_factory=WorkerPoolConfig)
-    cuebot: CuebotConfig = field(default_factory=CuebotConfig)
-    mrq_server: MRQServerConfig = field(default_factory=MRQServerConfig)
 
     @classmethod
-    def load(cls, config_path: Optional[str] = None) -> "OpenCueConfig":
+    def load(cls, config_path: Optional[str] = None) -> "AgentConfig":
         """
         Load configuration from file or environment.
         Priority: config_path > env vars > defaults
@@ -134,26 +131,21 @@ class OpenCueConfig:
                 data = json.load(f)
 
             worker_pool = WorkerPoolConfig(**data.get("worker_pool", {}))
-            cuebot = CuebotConfig(**data.get("cuebot", {}))
-            mrq_server = MRQServerConfig(**data.get("mrq_server", {}))
-
-            return cls(worker_pool=worker_pool, cuebot=cuebot, mrq_server=mrq_server)
+            return cls(worker_pool=worker_pool)
 
         # Fall back to environment variables
         return cls(
             worker_pool=WorkerPoolConfig.from_env(),
-            cuebot=CuebotConfig.from_env(),
-            mrq_server=MRQServerConfig.from_env(),
         )
 
 
 # Global config instance (lazy loaded)
-_config: Optional[OpenCueConfig] = None
+_config: Optional[AgentConfig] = None
 
 
-def get_config(config_path: Optional[str] = None) -> OpenCueConfig:
+def get_config(config_path: Optional[str] = None) -> AgentConfig:
     """Get or create the global config instance"""
     global _config
     if _config is None:
-        _config = OpenCueConfig.load(config_path)
+        _config = AgentConfig.load(config_path)
     return _config

@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """
-UE Render Task Script - Bridge between RQD and Worker Pool
+UE Render Task Script - Bridge between OpenCue RQD and the local Worker Pool.
 
 This script is executed by RQD (OpenCue Render Queue Daemon) to submit
 a render task to the local UE Worker Pool and wait for completion.
 
 Usage:
-    python ue_render_task.py --job-id <job_id> --level-sequence <path> [options]
+    # Preferred (agent CLI):
+    python -m src.ue_agent run-task --job-id <job_id> --level-sequence <path> [options]
+
+    # Or run the module directly:
+    python -m src.ue_agent.run_task --job-id <job_id> --level-sequence <path> [options]
 
 The script:
 1. Submits the task to the Worker Pool via POST /tasks
@@ -16,16 +20,14 @@ The script:
 import argparse
 import json
 import logging
-import sys
 import time
-from typing import Optional, Dict, Any
+from pathlib import Path
+from typing import Optional, Dict, Any, List
 
 import requests
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
+from .config import default_worker_pool_log_root
+
 logger = logging.getLogger(__name__)
 
 
@@ -152,7 +154,7 @@ def wait_for_task_completion(
         time.sleep(poll_interval)
 
 
-def main():
+def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         description="Submit UE render task to Worker Pool"
     )
@@ -208,7 +210,19 @@ def main():
         help="Extra parameters as JSON string"
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+
+    log_root = Path(default_worker_pool_log_root())
+    log_root.mkdir(parents=True, exist_ok=True)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.StreamHandler(),
+            logging.FileHandler(log_root / "run_task.log", encoding="utf-8"),
+        ],
+        force=True,
+    )
 
     # Parse extra params
     try:
@@ -225,7 +239,7 @@ def main():
         logger.info(f"Worker Pool Status: {status}")
     except requests.RequestException as e:
         logger.error(f"Cannot connect to Worker Pool at {args.worker_pool_url}: {e}")
-        sys.exit(1)
+        return 1
 
     # Create task
     logger.info(f"Creating task for job {args.job_id}...")
@@ -241,7 +255,7 @@ def main():
         logger.info(f"Task created: {task_id}")
     except requests.RequestException as e:
         logger.error(f"Failed to create task: {e}")
-        sys.exit(1)
+        return 1
 
     # Wait for completion
     try:
@@ -254,23 +268,23 @@ def main():
 
         if result.get("status") == "completed" and result.get("success"):
             logger.info(f"Render complete! Output: {result.get('video_directory')}")
-            sys.exit(0)
+            return 0
         else:
             error_msg = result.get("error_message", "Task did not complete successfully")
             logger.error(f"Render failed: {error_msg}")
-            sys.exit(1)
+            return 1
 
     except TimeoutError as e:
         logger.error(str(e))
         # Try to cancel the task
         client.cancel_task(task_id)
-        sys.exit(1)
+        return 1
 
     except KeyboardInterrupt:
         logger.warning("Interrupted by user")
         client.cancel_task(task_id)
-        sys.exit(130)
+        return 130
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

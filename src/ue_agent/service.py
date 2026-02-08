@@ -20,14 +20,14 @@ Worker Lifecycle:
 """
 import logging
 from contextlib import asynccontextmanager
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel
 
 from .config import get_config
 from .models import RenderTask, TaskStatus
-from .ue_worker_pool import UEWorkerPool
+from .worker_pool import UEWorkerPool
 
 logger = logging.getLogger(__name__)
 
@@ -314,14 +314,13 @@ def run_service(host: str = "0.0.0.0", port: int = 9100):
     import uvicorn
     uvicorn.run(app, host=host, port=port)
 
-
-if __name__ == "__main__":
+def main(argv: Optional[List[str]] = None) -> int:
     import argparse
 
     parser = argparse.ArgumentParser(description="UE Worker Pool Service")
     parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
     parser.add_argument("--port", type=int, default=9100, help="Port to bind to")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     logging.basicConfig(
         level=logging.INFO,
@@ -329,3 +328,8 @@ if __name__ == "__main__":
     )
 
     run_service(args.host, args.port)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,5 +1,5 @@
 """
-Data models for OpenCue UE Worker Pool
+Data models for OpenCue UE Agent (worker pool / persistent workers).
 
 Task and Worker state management with status transitions.
 """

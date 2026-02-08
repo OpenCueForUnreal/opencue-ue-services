@@ -1,10 +1,8 @@
 """
-UE Worker Pool Manager
+UE Worker Pool Manager (OpenCue UE Agent).
 
 Manages a pool of persistent Unreal Engine processes for rendering.
 Workers are long-lived and poll for tasks via HTTP.
-
-Incorporates robust process management from battle-tested daemon implementation.
 """
 import asyncio
 import logging
@@ -146,9 +144,6 @@ class UEWorkerPool:
         """Build command line arguments for launching a UE worker"""
         ue_cmd = self.get_ue_editor_cmd()
 
-        # Get MRQ server URL for progress reporting
-        mrq_server_url = get_config().mrq_server.base_url
-
         # Log file path
         log_path = self._log_dir / f"worker_{worker.worker_id}.log"
 
@@ -159,7 +154,6 @@ class UEWorkerPool:
             "-MRQWorkerMode",
             f"-MRQWorkerId={worker.worker_id}",
             f"-WorkerPoolBaseUrl=http://127.0.0.1:{self.config.port}/",
-            f"-MRQServerBaseUrl={mrq_server_url}",
             f"-MoviePipelineLocalExecutorClass={self.config.executor_class}",
             # Editor headless flags
             "-Unattended",
