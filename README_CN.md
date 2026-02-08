@@ -1,5 +1,8 @@
 # opencue-ue-services
 
+[![English](https://img.shields.io/badge/Language-English-blue)](./README.md)
+[![Simplified Chinese](https://img.shields.io/badge/Language-Simplified%20Chinese-red)](./README_CN.md)
+
 用于将 OpenCue 与 Unreal Engine MRQ 集成的 Windows 运行时与工具集。
 
 本仓库提供两个面向产品的可执行程序：

@@ -1,5 +1,8 @@
 # opencue-ue-services
 
+[![English](https://img.shields.io/badge/Language-English-blue)](./README.md)
+[![Simplified Chinese](https://img.shields.io/badge/Language-Simplified%20Chinese-red)](./README_CN.md)
+
 Windows runtime and tooling for integrating OpenCue with Unreal Engine MRQ.
 
 This repository provides two product-facing executables:
